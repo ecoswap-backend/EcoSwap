@@ -22,29 +22,16 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<?> registerUser(@RequestBody UsuarioRegistroDTO registroDTO) {
-        try {
-            User newUser = authService.registrarUsuario(registroDTO);
- 
-            return new ResponseEntity<>(newUser, HttpStatus.CREATED);
-            
-        } catch (RuntimeException e) {
-      
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+    public ResponseEntity<User> registerUser(@RequestBody UsuarioRegistroDTO registroDTO) {
+       
+        User newUser = authService.registrarUsuario(registroDTO);
+        return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> loginUser(@RequestBody UsuarioLoginDTO loginDTO) {
-        try {
-           
-            String jwtToken = authService.loginUsuario(loginDTO);
-            
-            return ResponseEntity.ok(jwtToken);
-            
-        } catch (RuntimeException e) {
-            
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.UNAUTHORIZED);
-        }
+    public ResponseEntity<String> loginUser(@RequestBody UsuarioLoginDTO loginDTO) {
+        
+        String jwtToken = authService.loginUsuario(loginDTO);
+        return ResponseEntity.ok(jwtToken);
     }
 }

@@ -49,16 +49,17 @@ public class SecurityConfig {
             .authorizeHttpRequests(authorize -> authorize
             
                 .requestMatchers("/api/auth/**", "/api/items/**").permitAll() 
+              
                 
                 .requestMatchers("/api/users/me").authenticated()
-                .requestMatchers("/api/items").authenticated() 
+                .requestMatchers("/api/items").permitAll() 
+                .requestMatchers("/api/items/*").permitAll() 
                 .requestMatchers("/api/items/*/reserve").authenticated() 
                 .requestMatchers("/api/items/*/complete").authenticated() 
-               
+                
                 .anyRequest().authenticated()
             );
 
- 
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
             
         return http.build();

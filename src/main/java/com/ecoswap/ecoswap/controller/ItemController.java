@@ -2,14 +2,15 @@ package com.ecoswap.ecoswap.controller;
 
 import com.ecoswap.ecoswap.dto.ItemDTO;
 import com.ecoswap.ecoswap.dto.ItemRegistroDTO; 
-import com.ecoswap.ecoswap.model.Item;
 import com.ecoswap.ecoswap.service.ItemService;
 import jakarta.validation.Valid;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
+import java.time.LocalDate;
 
 @RestController
 @RequestMapping("/api/items")
@@ -21,36 +22,56 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    
     @PostMapping
-    public ResponseEntity<?> crearItem(
+    public ResponseEntity<ItemDTO> crearItem(
             @Valid @RequestBody ItemRegistroDTO itemRegistroDTO,
             @AuthenticationPrincipal UserDetails userDetails) {
         
-        try {
-           
-            String userEmail = userDetails.getUsername(); 
+        
+        String userEmail = userDetails.getUsername(); 
+        ItemDTO nuevoItem = itemService.crearItem(itemRegistroDTO, userEmail);
 
-            Item nuevoItem = itemService.crearItem(itemRegistroDTO, userEmail);
-
-            return new ResponseEntity<>(nuevoItem, HttpStatus.CREATED);
-
-        } catch (RuntimeException e) {
-           
-            return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
-        }
+        return new ResponseEntity<>(nuevoItem, HttpStatus.CREATED);
     }
 
-  
+    
+    @GetMapping
+    public ResponseEntity<Page<ItemDTO>> obtenerItemsFiltrados(
+        @RequestParam(defaultValue = "0") int page, 
+        @RequestParam(defaultValue = "10") int size, 
+        @RequestParam(required = false) String categoria, 
+        @RequestParam(required = false) LocalDate fechaDesde) {
+        
+        Page<ItemDTO> items = itemService.obtenerItemsFiltrados(page, size, categoria, fechaDesde);
+        return ResponseEntity.ok(items);
+    }
+
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDTO> obtenerItemPorId(@PathVariable Long itemId) {
+     
         ItemDTO item = itemService.obtenerItemPorId(itemId);
+        return ResponseEntity.ok(item);
+    }
+    
+    @PostMapping("/{itemId}/reserve")
+    public ResponseEntity<ItemDTO> reservarItem(
+            @PathVariable Long itemId,
+            @AuthenticationPrincipal UserDetails userDetails) {
         
-        if (item != null) {
-         return ResponseEntity.ok(item);
-        } else {
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
+        String reservadorEmail = userDetails.getUsername();
+        ItemDTO itemReservado = itemService.reservarItem(itemId, reservadorEmail);
+ 
+        return ResponseEntity.ok(itemReservado);
     }
 
+    @PostMapping("/{itemId}/complete")
+    public ResponseEntity<ItemDTO> completarIntercambio(
+            @PathVariable Long itemId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+        
+        String duenoEmail = userDetails.getUsername();
+        ItemDTO itemCompletado = itemService.completarIntercambio(itemId, duenoEmail);
+ 
+        return ResponseEntity.ok(itemCompletado);
+    }
 }
