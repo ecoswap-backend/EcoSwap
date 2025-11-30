@@ -7,6 +7,9 @@ import com.ecoswap.ecoswap.dto.ItemRegistroDTO;
 import com.ecoswap.ecoswap.model.EstadoItem;
 import com.ecoswap.ecoswap.model.Item;
 import com.ecoswap.ecoswap.model.User;
+
+import jakarta.validation.Valid;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,18 +17,18 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+@SuppressWarnings("unused")
 @Service
 public class ItemService {
 
     private final ItemRepository itemRepository;
-    private final UserRepository userRepository; // Necesario para buscar al dueño/usuario
+    private final UserRepository userRepository; 
 
     public ItemService(ItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
     }
 
-    // --- Mapeador (Mapper) ---
     private ItemDTO mapToDTO(Item item) {
         ItemDTO dto = new ItemDTO();
         dto.setId(item.getId());
@@ -44,7 +47,6 @@ public class ItemService {
         return dto;
     }
 
-    // 🚩 1. CREACIÓN DE ARTÍCULO (Requiere Autenticación)
     public ItemDTO crearItem(ItemRegistroDTO registroDTO, Long duenoId) {
         User dueno = userRepository.findById(duenoId)
             .orElseThrow(() -> new RuntimeException("Dueño no encontrado"));
@@ -62,7 +64,6 @@ public class ItemService {
         return mapToDTO(savedItem);
     }
 
-    // 🚩 2. FILTRADO Y PAGINACIÓN (Página principal - Sin autenticación)
     public Page<ItemDTO> obtenerItemsFiltrados(
             int page, 
             int size, 
@@ -73,7 +74,6 @@ public class ItemService {
         LocalDateTime fechaHoraDesde = fechaDesde != null ? fechaDesde.atStartOfDay() : null;
         Page<Item> itemPage;
 
-        // Lógica para filtrar los artículos disponibles
         if (categoria != null && fechaDesde != null) {
             itemPage = itemRepository.findByEstadoAndCategoriaAndFechaCreacionAfter(
                 EstadoItem.DISPONIBLE, categoria, fechaHoraDesde, pageable);
@@ -90,7 +90,6 @@ public class ItemService {
         return itemPage.map(this::mapToDTO);
     }
     
-    // 🚩 3. DETALLE DE ARTÍCULO (Sin autenticación)
     public ItemDTO obtenerItemPorId(Long itemId) {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
@@ -98,7 +97,6 @@ public class ItemService {
         return mapToDTO(item);
     }
     
-    // 🚩 4. HACER UNA RESERVA (Requiere Autenticación)
     public ItemDTO reservarItem(Long itemId, Long reservadorId) {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
@@ -109,8 +107,7 @@ public class ItemService {
         if (item.getDueno().getId().equals(reservadorId)) {
             throw new RuntimeException("No puedes reservar tu propio artículo.");
         }
-        
-        // Restringir que solo un usuario pueda reservar a la vez (por defecto lo hacemos aquí)
+       
         User reservador = userRepository.findById(reservadorId)
             .orElseThrow(() -> new RuntimeException("Usuario reservador no encontrado"));
 
@@ -120,14 +117,11 @@ public class ItemService {
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
     }
-    
-    // 🚩 5. ACEPTAR RESERVA Y COMPLETAR INTERCAMBIO (Requiere Autenticación del Dueño)
-    // Requisito: Aceptar reserva y cambiar a entregado, ingresar puntos
+
     public ItemDTO completarIntercambio(Long itemId, Long duenoId) {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new RuntimeException("Artículo no encontrado"));
-            
-        // Validar que el usuario que intenta completar la reserva es el dueño
+       
         if (!item.getDueno().getId().equals(duenoId)) {
             throw new RuntimeException("Solo el dueño puede completar el intercambio.");
         }
@@ -135,15 +129,18 @@ public class ItemService {
             throw new RuntimeException("El artículo no está en estado RESERVADO.");
         }
         
-        // 1. Cambiar estado del artículo
         item.setEstado(EstadoItem.INTERCAMBIADO);
-        
-        // 2. Ingresar puntos al dueño (duenoId)
+      
         User dueno = item.getDueno();
         dueno.setPuntos(dueno.getPuntos() + item.getPuntosAGanar());
-        userRepository.save(dueno); // Guardar los puntos actualizados
+        userRepository.save(dueno); 
         
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
     }
+
+	public Item crearItem(ItemRegistroDTO itemRegistroDTO, String userEmail) {
+
+		throw new UnsupportedOperationException("Unimplemented method 'crearItem'");
+	}
 }

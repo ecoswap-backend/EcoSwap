@@ -21,8 +21,7 @@ public class CustomUserDetailsService implements UserDetailsService {
         if (user == null) {
             throw new UsernameNotFoundException("Usuario no encontrado con el correo: " + mail);
         }
-        
-        // Mapear tu entidad User a la clase UserDetails de Spring Security
+   
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getMail())
                 .password(user.getContrasena()) 

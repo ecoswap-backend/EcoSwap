@@ -12,7 +12,6 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-// IMPORTS CORREGIDOS:
 import com.ecoswap.ecoswap.security.CustomUserDetailsService; 
 import com.ecoswap.ecoswap.security.JwtTokenProvider;
 
@@ -37,16 +36,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null && tokenProvider.validateToken(jwt)) {
             String userMail = tokenProvider.getUsernameFromToken(jwt);
 
-            // Cargar los detalles del usuario
             UserDetails userDetails = customUserDetailsService.loadUserByUsername(userMail);
             
-            // Crear el objeto de autenticación
             UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
                     userDetails, null, userDetails.getAuthorities());
             
             authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-            // Establecer la autenticación en el contexto de Spring Security
             SecurityContextHolder.getContext().setAuthentication(authentication);
         }
 

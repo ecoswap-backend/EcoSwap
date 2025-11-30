@@ -7,9 +7,9 @@ import lombok.AllArgsConstructor;
 
 @Entity
 @Table(name = "users")
-@Data // Genera getters, setters, toString, equals, hashCode
-@NoArgsConstructor // Genera constructor sin argumentos
-@AllArgsConstructor // Genera constructor con todos los argumentos
+@Data 
+@NoArgsConstructor 
+@AllArgsConstructor 
 public class User {
 
     @Id
@@ -23,10 +23,10 @@ public class User {
     private String mail;
 
     @Column(nullable = false)
-    private String contrasena; // Contraseña hasheada
+    private String contrasena; 
 
     @Column(name = "imagen_perfil")
-    private String imagenPerfil; // URL al servicio de almacenamiento
+    private String imagenPerfil; 
 
     @Column(nullable = false)
     private int puntos = 0;

@@ -14,17 +14,15 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder; 
-    private final JwtTokenProvider jwtTokenProvider; // 💡 NUEVO
+    private final JwtTokenProvider jwtTokenProvider; 
 
     public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, JwtTokenProvider jwtTokenProvider) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.jwtTokenProvider = jwtTokenProvider; // 💡 INYECCIÓN
+        this.jwtTokenProvider = jwtTokenProvider; 
     }
 
-    // ... (El método registrarUsuario no cambia)
-    
-    // 🚩 LÓGICA DE LOGIN (COMPLETA)
+   
     public String loginUsuario(UsuarioLoginDTO loginDTO) {
         User user = userRepository.findByMail(loginDTO.getMail());
 
@@ -32,7 +30,6 @@ public class AuthService {
             throw new RuntimeException("Credenciales inválidas.");
         }
         
-        // 🚨 CAMBIO CRUCIAL: Generar y devolver el Token JWT
         return jwtTokenProvider.generarToken(user.getMail());
     }
 

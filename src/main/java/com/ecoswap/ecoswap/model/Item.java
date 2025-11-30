@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "items")
-@Data // Genera getters, setters, toString, equals, hashCode (Lombok)
+@Data 
 @NoArgsConstructor
 @AllArgsConstructor
 public class Item { 
@@ -17,7 +17,6 @@ public class Item {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // Dueño de la prenda
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User dueno; 
@@ -25,16 +24,15 @@ public class Item {
     @Column(nullable = false, length = 150)
     private String titulo;
 
-    @Lob // Para textos largos
+    @Lob 
     private String descripcion;
 
     @Column(name = "fecha_creacion", nullable = false, updatable = false)
     private LocalDateTime fechaCreacion = LocalDateTime.now(); 
 
-    // Mapea el Enum a su nombre String en la base de datos
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private EstadoItem estado = EstadoItem.DISPONIBLE; // ¡Aquí debe funcionar!
+    private EstadoItem estado = EstadoItem.DISPONIBLE; 
 
     @Column(name = "puntos_a_ganar", nullable = false)
     private int puntosAGanar;
@@ -43,9 +41,8 @@ public class Item {
     private String categoria;
 
     @Column(name = "imagen_principal")
-    private String imagenPrincipal; // URL (String)
+    private String imagenPrincipal; 
 
-    // Usuario que ha reservado el artículo
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservado_por_id")
     private User reservadoPor; 

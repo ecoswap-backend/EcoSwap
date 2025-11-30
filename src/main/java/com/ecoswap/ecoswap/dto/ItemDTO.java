@@ -14,7 +14,6 @@ public class ItemDTO {
     private String categoria;
     private String imagenPrincipal;
     
-    // Información del dueño
     private String duenoNombre; 
     private String duenoImagenPerfil;
 }
