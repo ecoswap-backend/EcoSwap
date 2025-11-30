@@ -1,11 +1,12 @@
 package com.ecoswap.ecoswap.security; // 💡 ASUMIMOS ESTE PAQUETE
 
 import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.Jwts; // <--- Importación de Jwts
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import io.jsonwebtoken.*; // 💡 IMPORTAR ESTO PARA LAS EXCEPCIONES
+import io.jsonwebtoken.*; // <-- Importación para excepciones
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,27 +16,21 @@ import java.util.Date;
 @Component
 public class JwtTokenProvider {
 
-    // ... (campos jwtSecret y jwtExpirationInMs) ...
     @Value("${jwt.secret}") 
     private String jwtSecret;
 
     @Value("${jwt.expiration.ms}") 
-    private int jwtExpirationInMs; // Elimina la asignación directa aquí, la toma de application.properties
+    private int jwtExpirationInMs;
 
-    // ... (métodos key(), generarToken() y getUsernameFromToken() sin cambios) ...
-    
-    // Método para obtener la clave de firma (Key)
     private Key key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecret));
     }
-    
-    // 🚩 1. Generar el Token JWT
+
+    // Generar el Token JWT
     public String generarToken(String userMail) {
-        // Establece la fecha de expiración
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + jwtExpirationInMs);
 
-        // Construye el token
         return Jwts.builder()
                 .setSubject(userMail)
                 .setIssuedAt(new Date())
@@ -44,9 +39,9 @@ public class JwtTokenProvider {
                 .compact();
     }
     
-    // 🚩 2. Obtener el email del token (se usa en el filtro de seguridad)
+    // Obtener el email del token
     public String getUsernameFromToken(String token) {
-        Claims claims = Jwts.parserBuilder()
+        Claims claims = Jwts.parserBuilder() // <-- Jwts.parserBuilder()
                 .setSigningKey(key())
                 .build()
                 .parseClaimsJws(token)
@@ -55,22 +50,13 @@ public class JwtTokenProvider {
         return claims.getSubject();
     }
 
-
-    // 🚩 3. Validar el Token JWT (Lógica completa)
+    // Validar el Token JWT
     public boolean validateToken(String authToken) {
         try {
-            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken);
+            Jwts.parserBuilder().setSigningKey(key()).build().parseClaimsJws(authToken); // <-- Jwts.parserBuilder()
             return true;
-        } catch (MalformedJwtException ex) {
-            // Token JWT malformado
-        } catch (ExpiredJwtException ex) {
-            // Token JWT expirado
-        } catch (UnsupportedJwtException ex) {
-            // Token JWT no soportado
-        } catch (IllegalArgumentException ex) {
-            // La cadena de claims está vacía
-        } catch (SignatureException ex) {
-            // Firma JWT inválida
+        } catch (MalformedJwtException | ExpiredJwtException | UnsupportedJwtException | IllegalArgumentException | SignatureException ex) {
+            // Aquí se pueden loguear los errores
         }
         return false;
     }

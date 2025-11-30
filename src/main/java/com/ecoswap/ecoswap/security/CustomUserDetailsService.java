@@ -25,8 +25,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         // Mapear tu entidad User a la clase UserDetails de Spring Security
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getMail())
-                .password(user.getContrasena()) // Contraseña ya hasheada
-                .roles("USER") // Asignar un rol básico
+                .password(user.getContrasena()) 
+                .roles("USER") 
                 .build();
     }
 }

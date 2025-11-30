@@ -12,17 +12,19 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import com.github.xujiaji.mk.security.front.service.CustomUserDetailsService;
+// IMPORTS CORREGIDOS:
+import com.ecoswap.ecoswap.security.CustomUserDetailsService; 
+import com.ecoswap.ecoswap.security.JwtTokenProvider;
 
 import java.io.IOException;
 
+@SuppressWarnings("unused")
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtTokenProvider tokenProvider;
     
-    // Asumimos que tienes un servicio para cargar detalles de usuario (necesario para Spring Security)
     @Autowired
     private CustomUserDetailsService customUserDetailsService;
 
