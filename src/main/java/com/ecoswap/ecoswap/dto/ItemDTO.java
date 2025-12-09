@@ -1,8 +1,6 @@
 package com.ecoswap.ecoswap.dto;
-
 import lombok.Data;
 import java.time.LocalDateTime;
-
 @Data
 public class ItemDTO {
     private Long id;
@@ -12,8 +10,7 @@ public class ItemDTO {
     private String estado; 
     private int puntosAGanar;
     private String categoria;
-    private String imagenPrincipal;
-    
+    private String imagenPrincipal; // Nombre del archivo local
     private String duenoNombre; 
     private String duenoImagenPerfil;
 }

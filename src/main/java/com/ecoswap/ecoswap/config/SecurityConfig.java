@@ -1,11 +1,14 @@
 package com.ecoswap.ecoswap.config;
+
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod; 
 import org.springframework.security.authentication.AuthenticationManager; 
 import org.springframework.security.authentication.ProviderManager; 
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider; 
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; 
 import org.springframework.security.config.http.SessionCreationPolicy; 
 import org.springframework.security.core.userdetails.UserDetailsService; 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -43,20 +46,20 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-            .csrf(csrf -> csrf.disable()) 
+            .csrf(AbstractHttpConfigurer::disable) 
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
             .authorizeHttpRequests(authorize -> authorize
-            
-                .requestMatchers("/api/auth/**", "/api/items/**").permitAll() 
-              
                 
-                .requestMatchers("/api/users/me").authenticated()
-                .requestMatchers("/api/items").permitAll() 
-                .requestMatchers("/api/items/*").permitAll() 
-                .requestMatchers("/api/items/*/reserve").authenticated() 
-                .requestMatchers("/api/items/*/complete").authenticated() 
-                
+                // Rutas Públicas: Auth, Listado de Artículos y Perfiles Públicos
+                .requestMatchers("/api/auth/**").permitAll() 
+                .requestMatchers(HttpMethod.GET, "/api/items").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/items/{itemId}").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() 
+
+                // Rutas Protegidas (Requieren autenticación)
+                // Se asegura que todas las operaciones de artículos (POST, PUT, DELETE, /reserve, /complete)
+                // y la gestión de perfil logueado estén protegidas.
                 .anyRequest().authenticated()
             );
 

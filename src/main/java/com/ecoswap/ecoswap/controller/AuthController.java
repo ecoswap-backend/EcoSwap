@@ -1,7 +1,7 @@
 package com.ecoswap.ecoswap.controller;
 
-import com.ecoswap.ecoswap.dto.UsuarioRegistroDTO;
 import com.ecoswap.ecoswap.dto.UsuarioLoginDTO;
+import com.ecoswap.ecoswap.dto.UsuarioRegistroDTO;
 import com.ecoswap.ecoswap.model.User;
 import com.ecoswap.ecoswap.service.AuthService;
 import org.springframework.http.HttpStatus;
@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-@RestController 
+@RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
@@ -22,16 +22,31 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> registerUser(@RequestBody UsuarioRegistroDTO registroDTO) {
-       
+    public ResponseEntity<User> register(@RequestBody UsuarioRegistroDTO registroDTO) {
         User newUser = authService.registrarUsuario(registroDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<String> loginUser(@RequestBody UsuarioLoginDTO loginDTO) {
-        
-        String jwtToken = authService.loginUsuario(loginDTO);
-        return ResponseEntity.ok(jwtToken);
+    public ResponseEntity<TokenResponse> login(@RequestBody UsuarioLoginDTO loginDTO) {
+        String token = authService.loginUsuario(loginDTO);
+        return ResponseEntity.ok(new TokenResponse(token));
+    }
+    
+    // Clase interna simple para envolver el token en la respuesta JSON
+    static class TokenResponse {
+        private String token;
+
+        public TokenResponse(String token) {
+            this.token = token;
+        }
+
+        public String getToken() {
+            return token;
+        }
+
+        public void setToken(String token) {
+            this.token = token;
+        }
     }
 }

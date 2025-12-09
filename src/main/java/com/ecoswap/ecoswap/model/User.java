@@ -5,6 +5,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Data 
@@ -30,4 +32,8 @@ public class User {
 
     @Column(nullable = false)
     private int puntos = 0;
+
+    // Relación para mostrar los artículos creados por el usuario
+    @OneToMany(mappedBy = "dueno", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Item> articulosCreados;
 }
