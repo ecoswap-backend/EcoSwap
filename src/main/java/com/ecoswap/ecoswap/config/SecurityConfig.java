@@ -56,7 +56,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/items").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/items/{itemId}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() 
-
+                .requestMatchers("/uploads/**").permitAll()
                 // Rutas Protegidas (Requieren autenticación)
                 // Se asegura que todas las operaciones de artículos (POST, PUT, DELETE, /reserve, /complete)
                 // y la gestión de perfil logueado estén protegidas.

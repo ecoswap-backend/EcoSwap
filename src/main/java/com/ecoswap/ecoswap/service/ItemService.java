@@ -24,7 +24,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
-
+@Transactional(readOnly = true)
 @Service
 public class ItemService {
 

@@ -34,15 +34,16 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+        @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> updateMyProfile(
-            @Valid @ModelAttribute UserUpdateDTO updateDTO,
-            @RequestPart(value = "imagen", required = false) MultipartFile imagenPerfil,
-            @AuthenticationPrincipal UserDetails userDetails) {
-        
-        String userEmail = userDetails.getUsername();
-        User updatedUser = userService.actualizarPerfil(userEmail, updateDTO, imagenPerfil);
+    @Valid @ModelAttribute UserUpdateDTO updateDTO,
+    // CAMBIO CRUCIAL: Cambiar "imagen" por "imagenPerfil"
+    @RequestPart(value = "imagenPerfil", required = false) MultipartFile imagenPerfil,
+    @AuthenticationPrincipal UserDetails userDetails) {
 
-        return ResponseEntity.ok(updatedUser);
-    }
+    String userEmail = userDetails.getUsername();
+    User updatedUser = userService.actualizarPerfil(userEmail, updateDTO, imagenPerfil);
+
+    return ResponseEntity.ok(updatedUser);
+        }
 }
