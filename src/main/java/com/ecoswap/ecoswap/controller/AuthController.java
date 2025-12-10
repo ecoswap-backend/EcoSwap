@@ -4,6 +4,7 @@ import com.ecoswap.ecoswap.dto.UsuarioLoginDTO;
 import com.ecoswap.ecoswap.dto.UsuarioRegistroDTO;
 import com.ecoswap.ecoswap.model.User;
 import com.ecoswap.ecoswap.service.AuthService;
+import jakarta.validation.Valid; // <-- ¡IMPORTACIÓN NECESARIA!
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -22,7 +23,10 @@ public class AuthController {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<User> register(@RequestBody UsuarioRegistroDTO registroDTO) {
+    public ResponseEntity<User> register(
+        // Solución: Añadir @Valid para activar las validaciones del DTO
+        @Valid @RequestBody UsuarioRegistroDTO registroDTO) { 
+        
         User newUser = authService.registrarUsuario(registroDTO);
         return new ResponseEntity<>(newUser, HttpStatus.CREATED);
     }

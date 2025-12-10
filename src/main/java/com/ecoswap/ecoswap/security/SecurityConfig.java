@@ -11,8 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; 
 import org.springframework.security.config.http.SessionCreationPolicy; 
 import org.springframework.security.core.userdetails.UserDetailsService; 
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
+// Ojo: Ya no necesitamos importar BCryptPasswordEncoder, solo PasswordEncoder en los métodos
+import org.springframework.security.crypto.password.PasswordEncoder; // Mantener solo la interfaz
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -28,13 +28,17 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
+    // ELIMINAR ESTE MÉTODO:
+    /*
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder(); 
     }
+    */
     
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
+        // Spring ahora inyectará el PasswordEncoder definido en PasswordConfig
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
@@ -56,8 +60,6 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() 
                 .requestMatchers("/uploads/**").permitAll()
                 // Rutas Protegidas (Requieren autenticación)
-                // Se asegura que todas las operaciones de artículos (POST, PUT, DELETE, /reserve, /complete)
-                // y la gestión de perfil logueado estén protegidas.
                 .anyRequest().authenticated()
             );
 
