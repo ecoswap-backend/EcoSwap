@@ -10,10 +10,9 @@ public class ItemRegistroDTO {
     @NonNull private String categoria;
     
     // Campo opcional (Permite null o cadena vacía)
-    private String descripcion; // <-- CORREGIDO: SE ELIMINA @NonNull
+    private String descripcion; 
     
-    // Este campo no debe estar en el DTO en un @PostMapping con MultipartFile
-    // El ItemController maneja la imagen por separado. Lo mantengo aquí si 
-    // lo usas internamente, pero generalmente se omite en el DTO de registro.
-    private String imagenPrincipal; 
+    // ¡CORRECCIÓN CRÍTICA!
+    // El campo 'imagenPrincipal' YA NO está aquí. Es manejado por 
+    // el controlador directamente como MultipartFile.
 }
