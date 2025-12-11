@@ -16,7 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collections; // ¡Nueva importación!
+// import java.util.Collections; // Ya no necesitamos esta importación temporal
 import java.util.List;
 import java.util.UUID;
 
@@ -64,13 +64,13 @@ public class UserService {
 
     // --- Métodos del Servicio ---
 
-    @Transactional
+    @Transactional(readOnly = true) // Añadido readOnly = true
     public User obtenerUsuarioPorId(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
     }
 
-    @Transactional
+    @Transactional(readOnly = true) // Añadido readOnly = true
     public User obtenerPerfilLogueado(String userEmail) {
         User user = userRepository.findByMail(userEmail);
         if (user == null) {
@@ -117,8 +117,19 @@ public class UserService {
         return userRepository.save(user);
     }
 
-    // *** MÉTODO CORREGIDO: Devuelve lista vacía para evitar el error 500 temporalmente ***
+    /**
+     * Obtiene los artículos publicados por el usuario logueado.
+     * @param userEmail El correo del usuario autenticado.
+     * @return Lista de artículos creados por el usuario.
+     */
+    @Transactional(readOnly = true) // <--- CORRECCIÓN CRÍTICA: Añadido @Transactional
     public List<Item> obtenerItemsPublicadosPorUsuario(String userEmail) {
-        return Collections.emptyList();
+        User user = userRepository.findByMail(userEmail);
+        if (user == null) {
+            throw new ResourceNotFoundException("Usuario logueado no encontrado con correo: " + userEmail);
+        }
+        // Forzamos la carga de la colección de artículos (Lazy Loading) dentro de la transacción.
+        user.getArticulosCreados().size(); 
+        return user.getArticulosCreados();
     }
 }
