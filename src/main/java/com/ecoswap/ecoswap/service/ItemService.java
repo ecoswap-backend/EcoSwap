@@ -1,3 +1,5 @@
+// src/main/java/com/ecoswap/ecoswap/service/ItemService.java (COMPLETO Y CORREGIDO)
+
 package com.ecoswap.ecoswap.service;
 
 import com.ecoswap.ecoswap.Repositories.ItemRepository;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -24,6 +27,7 @@ import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.UUID;
+
 @Transactional(readOnly = true)
 @Service
 public class ItemService {
@@ -31,16 +35,14 @@ public class ItemService {
     private final ItemRepository itemRepository;
     private final UserRepository userRepository; 
     
-    // Directorio para simular el almacenamiento local (NO URL)
+    // Directorio para simular el almacenamiento local
     private final Path storageLocation = Paths.get("uploads").toAbsolutePath().normalize();
-
 
     public ItemService(ItemRepository itemRepository, UserRepository userRepository) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         
         try {
-            // Asegura que el directorio 'uploads' exista
             Files.createDirectories(this.storageLocation);
         } catch (IOException e) {
             System.err.println("No se pudo crear el directorio de almacenamiento: " + e.getMessage());
@@ -50,7 +52,6 @@ public class ItemService {
     // --- Métodos de Ayuda (Map & File Management) ---
 
     private ItemDTO mapToDTO(Item item) {
-        
         ItemDTO dto = new ItemDTO();
         dto.setId(item.getId());
         dto.setTitulo(item.getTitulo());
@@ -59,7 +60,6 @@ public class ItemService {
         dto.setEstado(item.getEstado().name()); 
         dto.setPuntosAGanar(item.getPuntosAGanar());
         dto.setCategoria(item.getCategoria());
-        // Se almacena el nombre del archivo local, el cliente lo pedirá luego.
         dto.setImagenPrincipal(item.getImagenPrincipal()); 
 
         if (item.getDueno() != null) {
@@ -69,7 +69,6 @@ public class ItemService {
         return dto;
     }
     
-    /** Almacena el archivo físicamente en el directorio 'uploads'. */
     private String storeFile(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             return null;
@@ -84,7 +83,6 @@ public class ItemService {
         }
     }
     
-    /** Elimina el archivo físico. */
     private void deleteFile(String fileName) {
         if (fileName != null) {
             try {
@@ -97,6 +95,8 @@ public class ItemService {
     }
 
     private User getUserByEmail(String email) {
+        // Asumiendo que findByMail devuelve Optional<User> o lanza una excepción en caso de null.
+        // Adaptado a tu estructura, asumiendo que el repositorio devuelve User (no Optional).
         User user = userRepository.findByMail(email);
         if (user == null) {
             throw new ResourceNotFoundException("Usuario no encontrado con el correo: " + email);
@@ -108,7 +108,6 @@ public class ItemService {
     
     @Transactional
     public ItemDTO crearItem(ItemRegistroDTO registroDTO, MultipartFile imagenPrincipal, String userEmail) {
-        
         User dueno = getUserByEmail(userEmail);
         String imagePath = storeFile(imagenPrincipal); 
 
@@ -124,18 +123,15 @@ public class ItemService {
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
     }
-
+    
     public Page<ItemDTO> obtenerItemsFiltrados(
-                int page, 
-                int size, 
-                String categoria, 
-                LocalDate fechaDesde) {
+        int page, int size, String categoria, LocalDate fechaDesde) {
         
         Pageable pageable = PageRequest.of(page, size);
         LocalDateTime fechaHoraDesde = fechaDesde != null ? fechaDesde.atStartOfDay() : null;
         Page<Item> itemPage;
 
-        // Mostrar solo artículos DISPONIBLES y aplicar filtros
+        // Lógica de filtrado de Exploración
         if (categoria != null && fechaDesde != null) {
             itemPage = itemRepository.findByEstadoAndCategoriaAndFechaCreacionAfter(
                 EstadoItem.DISPONIBLE, categoria, fechaHoraDesde, pageable);
@@ -163,26 +159,28 @@ public class ItemService {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new ResourceNotFoundException("Artículo no encontrado con ID: " + itemId));
             
+        // ** 1. Verificación de Permisos **
         if (!item.getDueno().getMail().equals(duenoEmail)) {
             throw new InvalidOperationException("No tienes permiso para editar este artículo.");
         }
         
-        // Regla de negocio: Solo puedes editar artículos disponibles
+        // ** 2. Regla de negocio: Solo puedes editar artículos disponibles **
         if (item.getEstado() != EstadoItem.DISPONIBLE) {
              throw new InvalidOperationException("Solo puedes editar artículos en estado DISPONIBLE.");
         }
 
+        // ** 3. Aplicar cambios **
         if (updateDTO.getTitulo() != null) item.setTitulo(updateDTO.getTitulo());
         if (updateDTO.getDescripcion() != null) item.setDescripcion(updateDTO.getDescripcion());
         if (updateDTO.getCategoria() != null) item.setCategoria(updateDTO.getCategoria());
         if (updateDTO.getPuntosAGanar() != null) item.setPuntosAGanar(updateDTO.getPuntosAGanar());
 
-        // Manejo de la imagen: Sustituir o Eliminar
+        // ** 4. Manejo de la imagen: Sustituir o Eliminar **
         if (nuevaImagen != null && !nuevaImagen.isEmpty()) {
             deleteFile(item.getImagenPrincipal()); 
             String newImagePath = storeFile(nuevaImagen);
             item.setImagenPrincipal(newImagePath);
-        } else if ("true".equalsIgnoreCase(updateDTO.getEliminarImagenActual())) {
+        } else if (updateDTO.getEliminarImagenActual() != null && "true".equalsIgnoreCase(updateDTO.getEliminarImagenActual())) {
             deleteFile(item.getImagenPrincipal());
             item.setImagenPrincipal(null);
         }
@@ -200,7 +198,7 @@ public class ItemService {
             throw new InvalidOperationException("No tienes permiso para eliminar este artículo.");
         }
         
-        // Se elimina el archivo físico
+        // Se elimina el archivo físico y la entidad
         deleteFile(item.getImagenPrincipal());
         itemRepository.delete(item);
     }
@@ -213,7 +211,6 @@ public class ItemService {
         User reservador = getUserByEmail(reservadorEmail);
 
         if (item.getEstado() != EstadoItem.DISPONIBLE) {
-            // Restringe que un artículo pueda ser reservado por dos usuarios a la vez
             throw new InvalidOperationException("El artículo ya está reservado o intercambiado."); 
         }
 
@@ -264,13 +261,33 @@ public class ItemService {
         if (item.getEstado() != EstadoItem.RESERVADO || item.getReservadoPor() == null) {
             throw new InvalidOperationException("El artículo no está en estado RESERVADO.");
         }
-    
+        
         item.setEstado(EstadoItem.INTERCAMBIADO);
         
-        // ACUMULAR PUNTOS: Cambiar ropa por puntos (al dueño)
+        // --- LÓGICA DE TRANSFERENCIA DE PUNTOS ---
+        // El dueño (vendedor) GANA los puntos.
         User duenoActualizado = item.getDueno();
-        duenoActualizado.setPuntos(duenoActualizado.getPuntos() + item.getPuntosAGanar());
+        
+        // El reservador (comprador) PIERDE los puntos, por lo que el reservador debe ser el que transfiera.
+        // CORRECCIÓN CLAVE: La transacción de puntos debe ocurrir en este punto o asegurarse en la reserva inicial.
+        // Dado que la reserva no restó puntos, la resta y la suma deben ocurrir aquí.
+
+        User comprador = item.getReservadoPor();
+        int puntos = item.getPuntosAGanar();
+        
+        if (comprador.getPuntos() < puntos) {
+            // Esto debería ser un chequeo anterior, pero lo incluimos por seguridad.
+            throw new InvalidOperationException("El comprador no tiene los puntos suficientes para completar la transacción.");
+        }
+
+        // Restar puntos al comprador
+        comprador.setPuntos(comprador.getPuntos() - puntos);
+        userRepository.save(comprador);
+        
+        // Sumar puntos al dueño/vendedor
+        duenoActualizado.setPuntos(duenoActualizado.getPuntos() + puntos);
         userRepository.save(duenoActualizado); 
+        // ------------------------------------------
         
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
