@@ -11,7 +11,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer; 
 import org.springframework.security.config.http.SessionCreationPolicy; 
 import org.springframework.security.core.userdetails.UserDetailsService; 
-// Ojo: Ya no necesitamos importar BCryptPasswordEncoder, solo PasswordEncoder en los métodos
 import org.springframework.security.crypto.password.PasswordEncoder; // Mantener solo la interfaz
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
@@ -28,14 +27,9 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // ELIMINAR ESTE MÉTODO:
-    /*
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(); 
-    }
-    */
+    // El bean de PasswordEncoder se espera que venga de PasswordConfig.java
     
+    @SuppressWarnings("deprecation")
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         // Spring ahora inyectará el PasswordEncoder definido en PasswordConfig
@@ -52,6 +46,9 @@ public class SecurityConfig {
             .sessionManagement(session -> session
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
             .authorizeHttpRequests(authorize -> authorize
+                
+                // *** SOLUCIÓN CORS: Permite las solicitudes OPTIONS para el preflight ***
+                .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
                 
                 // Rutas Públicas: Auth, Listado de Artículos y Perfiles Públicos
                 .requestMatchers("/api/auth/**").permitAll() 

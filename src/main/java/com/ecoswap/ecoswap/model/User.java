@@ -1,11 +1,14 @@
 package com.ecoswap.ecoswap.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore; // Importación necesaria
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
 import java.util.List;
+// Asegúrate de que todas las importaciones de JPA están ahí (jakarta.persistence.*)
+
 
 @Entity
 @Table(name = "users")
@@ -34,6 +37,8 @@ public class User {
     private int puntos = 0;
 
     // Relación para mostrar los artículos creados por el usuario
+    // CRUCIAL: Añadimos @JsonIgnore para evitar la excepción 500 (LazyInitializationException/Bucle)
+    @JsonIgnore
     @OneToMany(mappedBy = "dueno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> articulosCreados;
 }
