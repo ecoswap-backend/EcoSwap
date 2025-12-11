@@ -25,10 +25,11 @@ public class ItemController {
         this.itemService = itemService;
     }
 
+    // *** MÉTODO CORREGIDO ***
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemDTO> crearItem(
             @Valid @ModelAttribute ItemRegistroDTO itemRegistroDTO, 
-            @RequestPart(value = "imagen", required = false) MultipartFile imagenPrincipal, 
+            @RequestPart(value = "imagenPrincipal", required = false) MultipartFile imagenPrincipal, // <-- CORRECCIÓN
             @AuthenticationPrincipal UserDetails userDetails) {
         
         String userEmail = userDetails.getUsername(); 
@@ -36,6 +37,7 @@ public class ItemController {
 
         return new ResponseEntity<>(nuevoItem, HttpStatus.CREATED);
     }
+    // ************************
 
     @GetMapping
     public ResponseEntity<Page<ItemDTO>> obtenerItemsFiltrados(
