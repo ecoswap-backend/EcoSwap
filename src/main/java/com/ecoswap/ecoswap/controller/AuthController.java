@@ -4,7 +4,7 @@ import com.ecoswap.ecoswap.dto.UsuarioLoginDTO;
 import com.ecoswap.ecoswap.dto.UsuarioRegistroDTO;
 import com.ecoswap.ecoswap.model.User;
 import com.ecoswap.ecoswap.service.AuthService;
-import jakarta.validation.Valid; // <-- ¡IMPORTACIÓN NECESARIA!
+import jakarta.validation.Valid; 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -24,7 +24,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public ResponseEntity<User> register(
-        // Solución: Añadir @Valid para activar las validaciones del DTO
+       
         @Valid @RequestBody UsuarioRegistroDTO registroDTO) { 
         
         User newUser = authService.registrarUsuario(registroDTO);
@@ -37,7 +37,7 @@ public class AuthController {
         return ResponseEntity.ok(new TokenResponse(token));
     }
     
-    // Clase interna simple para envolver el token en la respuesta JSON
+    
     static class TokenResponse {
         private String token;
 
