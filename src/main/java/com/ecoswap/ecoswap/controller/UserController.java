@@ -29,12 +29,10 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // ENDPOINT PARA OBTENER EL PERFIL LOGUEADO
     @GetMapping("/me")
     public ResponseEntity<User> getMyProfile(@AuthenticationPrincipal UserDetails userDetails) {
-        // *** CAMBIO: Comprobación de seguridad para evitar NullPointerException ***
         if (userDetails == null) {
-            return ResponseEntity.status(403).build(); // 403 Forbidden si no hay usuario autenticado
+            return ResponseEntity.status(403).build(); 
         }
         
         String userEmail = userDetails.getUsername(); 
@@ -42,7 +40,6 @@ public class UserController {
         return ResponseEntity.ok(user);
     }
 
-    // ENDPOINT NUEVO: OBTENER ARTÍCULOS PUBLICADOS POR EL USUARIO
     @GetMapping("/me/items")
     public ResponseEntity<List<Item>> getMyPublishedItems(@AuthenticationPrincipal UserDetails userDetails) {
         if (userDetails == null) {
@@ -50,12 +47,10 @@ public class UserController {
         }
         
         String userEmail = userDetails.getUsername();
-        // Llama al método en UserService (que ahora devuelve una lista vacía y no falla)
         List<Item> items = userService.obtenerItemsPublicadosPorUsuario(userEmail); 
         return ResponseEntity.ok(items);
     }
     
-    // ... (El resto de los métodos como updateMyProfile son iguales)
     @PutMapping(value = "/me", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<User> updateMyProfile(
         @Valid @ModelAttribute UserUpdateDTO updateDTO,

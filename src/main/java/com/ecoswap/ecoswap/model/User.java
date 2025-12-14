@@ -36,8 +36,6 @@ public class User {
     @Column(nullable = false)
     private int puntos = 0;
 
-    // Relación para mostrar los artículos creados por el usuario
-    // CRUCIAL: Añadimos @JsonIgnore para evitar la excepción 500 (LazyInitializationException/Bucle)
     @JsonIgnore
     @OneToMany(mappedBy = "dueno", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Item> articulosCreados;

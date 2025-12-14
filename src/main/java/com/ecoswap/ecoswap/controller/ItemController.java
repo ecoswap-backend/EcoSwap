@@ -25,7 +25,6 @@ public class ItemController {
         this.itemService = itemService;
     }
 
-    // 1. PUBLICAR ARTÍCULO (POST - MULTIPART_FORM_DATA)
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemDTO> crearItem(
             @Valid @ModelAttribute ItemRegistroDTO itemRegistroDTO, 
@@ -38,7 +37,6 @@ public class ItemController {
         return new ResponseEntity<>(nuevoItem, HttpStatus.CREATED);
     }
 
-    // 2. EXPLORACIÓN Y FILTROS
     @GetMapping
     public ResponseEntity<Page<ItemDTO>> obtenerItemsFiltrados(
         @RequestParam(defaultValue = "0") int page, 
@@ -50,19 +48,17 @@ public class ItemController {
         return ResponseEntity.ok(items);
     }
 
-    // 3. OBTENER DETALLE POR ID
     @GetMapping("/{itemId}")
     public ResponseEntity<ItemDTO> obtenerItemPorId(@PathVariable Long itemId) {
         ItemDTO item = itemService.obtenerItemPorId(itemId);
         return ResponseEntity.ok(item);
     }
     
-    // 4A. EDITAR ARTÍCULO (CON IMAGEN)
     @PutMapping(value = "/{itemId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<ItemDTO> editarItemConImagen(
             @PathVariable Long itemId,
-            @Valid @ModelAttribute ItemUpdateDTO itemUpdateDTO, // Datos de texto/número
-            @RequestPart(value = "imagen", required = false) MultipartFile nuevaImagen, // Archivo de imagen
+            @Valid @ModelAttribute ItemUpdateDTO itemUpdateDTO, 
+            @RequestPart(value = "imagen", required = false) MultipartFile nuevaImagen, 
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String userEmail = userDetails.getUsername();
@@ -70,20 +66,18 @@ public class ItemController {
         return ResponseEntity.ok(itemActualizado);
     }
 
-    // 4B. EDITAR ARTÍCULO (SOLO DATOS DE TEXTO/JSON) [NUEVO MÉTODO/SOLUCIÓN AL ERROR]
     @PatchMapping(value = "/{itemId}", consumes = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<ItemDTO> editarItemSoloDatos(
             @PathVariable Long itemId,
-            @RequestBody ItemUpdateDTO itemUpdateDTO, // Acepta JSON directamente
+            @RequestBody ItemUpdateDTO itemUpdateDTO, 
             @AuthenticationPrincipal UserDetails userDetails) {
 
         String userEmail = userDetails.getUsername();
-        // Llamamos al servicio con null en la imagen
+        
         ItemDTO itemActualizado = itemService.editarItem(itemId, itemUpdateDTO, null, userEmail);
         return ResponseEntity.ok(itemActualizado);
     }
 
-    // 5. ELIMINAR ARTÍCULO
     @DeleteMapping("/{itemId}")
     public ResponseEntity<Void> eliminarItem(
             @PathVariable Long itemId,
@@ -94,7 +88,6 @@ public class ItemController {
         return ResponseEntity.noContent().build();
     }
     
-    // 6. RESERVAR ARTÍCULO
     @PostMapping("/{itemId}/reserve")
     public ResponseEntity<ItemDTO> reservarItem(
             @PathVariable Long itemId,
@@ -106,7 +99,6 @@ public class ItemController {
         return ResponseEntity.ok(itemReservado);
     }
 
-    // 7. CANCELAR RESERVA
     @DeleteMapping("/{itemId}/reserve")
     public ResponseEntity<ItemDTO> eliminarReserva(
             @PathVariable Long itemId,
@@ -118,7 +110,6 @@ public class ItemController {
         return ResponseEntity.ok(itemSinReserva);
     }
 
-    // 8. COMPLETAR INTERCAMBIO Y TRANSFERENCIA DE PUNTOS
     @PostMapping("/{itemId}/complete")
     public ResponseEntity<ItemDTO> completarIntercambio(
             @PathVariable Long itemId,

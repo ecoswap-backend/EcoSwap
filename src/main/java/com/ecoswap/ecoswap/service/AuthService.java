@@ -47,11 +47,9 @@ public class AuthService {
         
         String encodedPassword = passwordEncoder.encode(registroDTO.getContrasena());
         newUser.setContrasena(encodedPassword);
-        
-        // La imagen de perfil es opcional en el DTO, pero se inicializa
+    
         if (registroDTO.getImagenPerfil() != null) {
-            // Nota: Aquí no se maneja la subida de imagen de registro, solo se guarda la URL si existe. 
-            // Si quieres que el registro también soporte MultipartFile, debes actualizar el DTO, Controller y este Service.
+
             newUser.setImagenPerfil(registroDTO.getImagenPerfil());
         }
         newUser.setPuntos(0); 

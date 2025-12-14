@@ -27,12 +27,11 @@ public class SecurityConfig {
         this.userDetailsService = userDetailsService;
     }
 
-    // El bean de PasswordEncoder se espera que venga de PasswordConfig.java
     
     @SuppressWarnings("deprecation")
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
-        // Spring ahora inyectará el PasswordEncoder definido en PasswordConfig
+  
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
         authenticationProvider.setUserDetailsService(userDetailsService);
         authenticationProvider.setPasswordEncoder(passwordEncoder);
@@ -47,16 +46,14 @@ public class SecurityConfig {
                 .sessionCreationPolicy(SessionCreationPolicy.STATELESS)) 
             .authorizeHttpRequests(authorize -> authorize
                 
-                // *** SOLUCIÓN CORS: Permite las solicitudes OPTIONS para el preflight ***
                 .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll() 
-                
-                // Rutas Públicas: Auth, Listado de Artículos y Perfiles Públicos
+          
                 .requestMatchers("/api/auth/**").permitAll() 
                 .requestMatchers(HttpMethod.GET, "/api/items").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/items/{itemId}").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/users/{id}").permitAll() 
                 .requestMatchers("/uploads/**").permitAll()
-                // Rutas Protegidas (Requieren autenticación)
+          
                 .anyRequest().authenticated()
             );
 

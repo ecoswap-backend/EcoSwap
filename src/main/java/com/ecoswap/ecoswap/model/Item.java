@@ -39,8 +39,7 @@ public class Item {
 
     @Column(nullable = false, length = 50)
     private String categoria;
-
-    // Almacena el nombre del archivo local, NO una URL externa.
+    
     @Column(name = "imagen_principal")
     private String imagenPrincipal; 
 

@@ -10,7 +10,7 @@ public class ItemDTO {
     private String estado; 
     private int puntosAGanar;
     private String categoria;
-    private String imagenPrincipal; // Nombre del archivo local
+    private String imagenPrincipal;
     private String duenoNombre; 
     private String duenoImagenPerfil;
 }

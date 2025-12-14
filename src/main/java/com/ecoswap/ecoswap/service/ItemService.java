@@ -34,8 +34,7 @@ public class ItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository; 
-    
-    // Directorio para simular el almacenamiento local
+  
     private final Path storageLocation = Paths.get("uploads").toAbsolutePath().normalize();
 
     public ItemService(ItemRepository itemRepository, UserRepository userRepository) {
@@ -48,8 +47,6 @@ public class ItemService {
             System.err.println("No se pudo crear el directorio de almacenamiento: " + e.getMessage());
         }
     }
-
-    // --- Métodos de Ayuda (Map & File Management) ---
 
     private ItemDTO mapToDTO(Item item) {
         ItemDTO dto = new ItemDTO();
@@ -95,8 +92,7 @@ public class ItemService {
     }
 
     private User getUserByEmail(String email) {
-        // Asumiendo que findByMail devuelve Optional<User> o lanza una excepción en caso de null.
-        // Adaptado a tu estructura, asumiendo que el repositorio devuelve User (no Optional).
+    
         User user = userRepository.findByMail(email);
         if (user == null) {
             throw new ResourceNotFoundException("Usuario no encontrado con el correo: " + email);
@@ -104,8 +100,7 @@ public class ItemService {
         return user;
     }
 
-    // --- Métodos de Negocio (CRUD y Transacciones) ---
-    
+
     @Transactional
     public ItemDTO crearItem(ItemRegistroDTO registroDTO, MultipartFile imagenPrincipal, String userEmail) {
         User dueno = getUserByEmail(userEmail);
@@ -131,7 +126,6 @@ public class ItemService {
         LocalDateTime fechaHoraDesde = fechaDesde != null ? fechaDesde.atStartOfDay() : null;
         Page<Item> itemPage;
 
-        // Lógica de filtrado de Exploración
         if (categoria != null && fechaDesde != null) {
             itemPage = itemRepository.findByEstadoAndCategoriaAndFechaCreacionAfter(
                 EstadoItem.DISPONIBLE, categoria, fechaHoraDesde, pageable);
@@ -158,24 +152,20 @@ public class ItemService {
     public ItemDTO editarItem(Long itemId, ItemUpdateDTO updateDTO, MultipartFile nuevaImagen, String duenoEmail) {
         Item item = itemRepository.findById(itemId)
             .orElseThrow(() -> new ResourceNotFoundException("Artículo no encontrado con ID: " + itemId));
-            
-        // ** 1. Verificación de Permisos **
+     
         if (!item.getDueno().getMail().equals(duenoEmail)) {
             throw new InvalidOperationException("No tienes permiso para editar este artículo.");
         }
         
-        // ** 2. Regla de negocio: Solo puedes editar artículos disponibles **
         if (item.getEstado() != EstadoItem.DISPONIBLE) {
              throw new InvalidOperationException("Solo puedes editar artículos en estado DISPONIBLE.");
         }
 
-        // ** 3. Aplicar cambios **
         if (updateDTO.getTitulo() != null) item.setTitulo(updateDTO.getTitulo());
         if (updateDTO.getDescripcion() != null) item.setDescripcion(updateDTO.getDescripcion());
         if (updateDTO.getCategoria() != null) item.setCategoria(updateDTO.getCategoria());
         if (updateDTO.getPuntosAGanar() != null) item.setPuntosAGanar(updateDTO.getPuntosAGanar());
 
-        // ** 4. Manejo de la imagen: Sustituir o Eliminar **
         if (nuevaImagen != null && !nuevaImagen.isEmpty()) {
             deleteFile(item.getImagenPrincipal()); 
             String newImagePath = storeFile(nuevaImagen);
@@ -198,7 +188,6 @@ public class ItemService {
             throw new InvalidOperationException("No tienes permiso para eliminar este artículo.");
         }
         
-        // Se elimina el archivo físico y la entidad
         deleteFile(item.getImagenPrincipal());
         itemRepository.delete(item);
     }
@@ -264,31 +253,23 @@ public class ItemService {
         
         item.setEstado(EstadoItem.INTERCAMBIADO);
         
-        // --- LÓGICA DE TRANSFERENCIA DE PUNTOS ---
-        // El dueño (vendedor) GANA los puntos.
         User duenoActualizado = item.getDueno();
         
-        // El reservador (comprador) PIERDE los puntos, por lo que el reservador debe ser el que transfiera.
-        // CORRECCIÓN CLAVE: La transacción de puntos debe ocurrir en este punto o asegurarse en la reserva inicial.
-        // Dado que la reserva no restó puntos, la resta y la suma deben ocurrir aquí.
-
         User comprador = item.getReservadoPor();
         int puntos = item.getPuntosAGanar();
         
         if (comprador.getPuntos() < puntos) {
-            // Esto debería ser un chequeo anterior, pero lo incluimos por seguridad.
+        
             throw new InvalidOperationException("El comprador no tiene los puntos suficientes para completar la transacción.");
         }
 
-        // Restar puntos al comprador
         comprador.setPuntos(comprador.getPuntos() - puntos);
         userRepository.save(comprador);
         
-        // Sumar puntos al dueño/vendedor
         duenoActualizado.setPuntos(duenoActualizado.getPuntos() + puntos);
         userRepository.save(duenoActualizado); 
-        // ------------------------------------------
-        
+      
+    
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
     }

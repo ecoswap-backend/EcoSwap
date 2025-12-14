@@ -16,7 +16,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-// import java.util.Collections; // Ya no necesitamos esta importación temporal
 import java.util.List;
 import java.util.UUID;
 
@@ -37,8 +36,7 @@ public class UserService {
             System.err.println("No se pudo crear el directorio de almacenamiento: " + e.getMessage());
         }
     }
-    
-    // Métodos de manejo de archivos
+  
     private String storeFile(MultipartFile file) {
         if (file == null || file.isEmpty()) return null;
         try {
@@ -62,15 +60,13 @@ public class UserService {
         }
     }
 
-    // --- Métodos del Servicio ---
-
-    @Transactional(readOnly = true) // Añadido readOnly = true
+    @Transactional(readOnly = true)
     public User obtenerUsuarioPorId(Long id) {
         return userRepository.findById(id)
             .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado con ID: " + id));
     }
 
-    @Transactional(readOnly = true) // Añadido readOnly = true
+    @Transactional(readOnly = true) 
     public User obtenerPerfilLogueado(String userEmail) {
         User user = userRepository.findByMail(userEmail);
         if (user == null) {
@@ -99,12 +95,11 @@ public class UserService {
             if (!passwordEncoder.matches(updateDTO.getContrasenaActual(), user.getContrasena())) {
                 throw new InvalidOperationException("Contraseña actual incorrecta.");
             }
-            // Puedes añadir validación de longitud de la nueva contraseña aquí
+            
             String encodedPassword = passwordEncoder.encode(updateDTO.getNuevaContrasena());
             user.setContrasena(encodedPassword);
         }
 
-        // Manejo de imagen de perfil: Sustituir o Eliminar
         if (imagenPerfil != null && !imagenPerfil.isEmpty()) {
             deleteFile(user.getImagenPerfil());
             String newImagePath = storeFile(imagenPerfil);
@@ -118,17 +113,16 @@ public class UserService {
     }
 
     /**
-     * Obtiene los artículos publicados por el usuario logueado.
-     * @param userEmail El correo del usuario autenticado.
-     * @return Lista de artículos creados por el usuario.
+     * @param userEmail 
+     * @return 
      */
-    @Transactional(readOnly = true) // <--- CORRECCIÓN CRÍTICA: Añadido @Transactional
+    @Transactional(readOnly = true) 
     public List<Item> obtenerItemsPublicadosPorUsuario(String userEmail) {
         User user = userRepository.findByMail(userEmail);
         if (user == null) {
             throw new ResourceNotFoundException("Usuario logueado no encontrado con correo: " + userEmail);
         }
-        // Forzamos la carga de la colección de artículos (Lazy Loading) dentro de la transacción.
+      
         user.getArticulosCreados().size(); 
         return user.getArticulosCreados();
     }

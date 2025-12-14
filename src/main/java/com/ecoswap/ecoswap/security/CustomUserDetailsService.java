@@ -26,7 +26,6 @@ public class CustomUserDetailsService implements UserDetailsService {
             throw new UsernameNotFoundException("Usuario no encontrado con el correo: " + mail);
         }
     
-        // Retorna un UserDetails de Spring Security con un rol simple
         return new org.springframework.security.core.userdetails.User(
                 user.getMail(), 
                 user.getContrasena(), 
