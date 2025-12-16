@@ -2,7 +2,7 @@ package com.ecoswap.ecoswap.controller;
 
 import com.ecoswap.ecoswap.dto.UserUpdateDTO;
 import com.ecoswap.ecoswap.model.User;
-import com.ecoswap.ecoswap.model.Item; // Importar Item
+import com.ecoswap.ecoswap.model.Item; 
 import com.ecoswap.ecoswap.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.http.MediaType;
@@ -11,7 +11,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import java.util.List; // Importar List
+import java.util.List; 
 
 @RestController 
 @RequestMapping("/api/users")

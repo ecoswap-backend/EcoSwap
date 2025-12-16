@@ -1,4 +1,3 @@
-// src/main/java/com/ecoswap/ecoswap/service/ItemService.java (COMPLETO Y CORREGIDO)
 
 package com.ecoswap.ecoswap.service;
 
