@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 
 @Service
-public class AuthService {
+public class AuthService implements IAuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;

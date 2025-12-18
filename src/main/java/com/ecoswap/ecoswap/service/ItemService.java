@@ -29,7 +29,7 @@ import java.util.UUID;
 
 @Transactional(readOnly = true)
 @Service
-public class ItemService {
+public class ItemService implements IItemService {
 
     private final ItemRepository itemRepository;
     private final UserRepository userRepository; 
@@ -53,10 +53,13 @@ public class ItemService {
         dto.setTitulo(item.getTitulo());
         dto.setDescripcion(item.getDescripcion());
         dto.setFechaCreacion(item.getFechaCreacion());
-        dto.setEstado(item.getEstado().name()); 
+        dto.setEstado(item.getEstado().name());
         dto.setPuntosAGanar(item.getPuntosAGanar());
         dto.setCategoria(item.getCategoria());
-        dto.setImagenPrincipal(item.getImagenPrincipal()); 
+        dto.setTalla(item.getTalla());
+        dto.setEstadoPrenda(item.getEstadoPrenda());
+        dto.setUbicacion(item.getUbicacion());
+        dto.setImagenPrincipal(item.getImagenPrincipal());
 
         if (item.getDueno() != null) {
             dto.setDuenoNombre(item.getDueno().getNombre());
@@ -103,17 +106,26 @@ public class ItemService {
     @Transactional
     public ItemDTO crearItem(ItemRegistroDTO registroDTO, MultipartFile imagenPrincipal, String userEmail) {
         User dueno = getUserByEmail(userEmail);
-        String imagePath = storeFile(imagenPrincipal); 
+        String imagePath = storeFile(imagenPrincipal);
 
         Item item = new Item();
         item.setDueno(dueno);
         item.setTitulo(registroDTO.getTitulo());
         item.setDescripcion(registroDTO.getDescripcion());
-        item.setPuntosAGanar(registroDTO.getPuntosAGanar());
         item.setCategoria(registroDTO.getCategoria());
-        item.setImagenPrincipal(imagePath); 
-        item.setEstado(EstadoItem.DISPONIBLE); 
-        
+        item.setTalla(registroDTO.getTalla());
+        item.setEstadoPrenda(registroDTO.getEstado());
+        item.setUbicacion(registroDTO.getUbicacion());
+        item.setImagenPrincipal(imagePath);
+        item.setEstado(EstadoItem.DISPONIBLE);
+
+        // Auto-calculate points if not provided
+        if (registroDTO.getPuntosAGanar() != null) {
+            item.setPuntosAGanar(registroDTO.getPuntosAGanar());
+        } else {
+            item.setPuntosAGanar(10); // Default value
+        }
+
         Item savedItem = itemRepository.save(item);
         return mapToDTO(savedItem);
     }

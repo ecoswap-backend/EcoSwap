@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
-public class UserService {
+public class UserService implements IUserService {
 
     private final UserRepository userRepository; 
     private final PasswordEncoder passwordEncoder; 
