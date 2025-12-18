@@ -7,10 +7,13 @@ public class ItemDTO {
     private String titulo;
     private String descripcion;
     private LocalDateTime fechaCreacion;
-    private String estado; 
+    private String estado;
     private int puntosAGanar;
     private String categoria;
+    private String talla;
+    private String estadoPrenda;
+    private String ubicacion;
     private String imagenPrincipal;
-    private String duenoNombre; 
+    private String duenoNombre;
     private String duenoImagenPerfil;
 }

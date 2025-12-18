@@ -6,10 +6,12 @@ import lombok.NonNull;
 public class ItemRegistroDTO {
 
     @NonNull private String titulo;
-    @NonNull private Integer puntosAGanar; 
     @NonNull private String categoria;
-    
-    
-    private String descripcion; 
-    
+
+    private String descripcion;
+    private Integer puntosAGanar;
+    private String talla;
+    private String estado;
+    private String ubicacion;
+
 }
