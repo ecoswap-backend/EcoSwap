@@ -4,7 +4,7 @@ import com.ecoswap.ecoswap.dto.UsuarioLoginDTO;
 import com.ecoswap.ecoswap.dto.UsuarioRegistroDTO;
 import com.ecoswap.ecoswap.model.User;
 
-public interface AuthSservice {
+public interface IAuthService {
     User registrarUsuario(UsuarioRegistroDTO registroDTO);
     String loginUsuario(UsuarioLoginDTO loginDTO);
 }

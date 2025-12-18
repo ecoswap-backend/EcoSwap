@@ -1,9 +1,5 @@
-package com.ecoswap.ecoswap.controller;
+package com.ecoswap.ecoswap.exception;
 
-import com.ecoswap.ecoswap.exception.ResourceNotFoundException;
-import com.ecoswap.ecoswap.exception.InvalidCredentialsException;
-import com.ecoswap.ecoswap.exception.InvalidOperationException;
-import com.ecoswap.ecoswap.exception.UserAlreadyExistsException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;
