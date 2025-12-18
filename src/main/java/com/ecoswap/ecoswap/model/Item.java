@@ -39,9 +39,18 @@ public class Item {
 
     @Column(nullable = false, length = 50)
     private String categoria;
-    
+
+    @Column(length = 10)
+    private String talla;
+
+    @Column(name = "estado_prenda", length = 50)
+    private String estadoPrenda;
+
+    @Column(length = 100)
+    private String ubicacion;
+
     @Column(name = "imagen_principal")
-    private String imagenPrincipal; 
+    private String imagenPrincipal;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "reservado_por_id")
